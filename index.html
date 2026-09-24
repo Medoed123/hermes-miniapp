@@ -69,21 +69,39 @@ main{flex:1;display:flex;min-height:0}
 }
 .hitem:active{background:var(--card2)}
 .hitem .txt{font-size:13.5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.hitem .meta{font-size:10.5px;color:var(--dim);margin-top:5px;display:flex;justify-content:space-between}
-.hitem .del{color:var(--dim);padding:0 3px}
-.hitem .del:active{color:var(--red)}
+.hitem .meta{font-size:11px;margin-top:5px;display:flex;justify-content:space-between;align-items:center}
+.hitem .meta .when{color:var(--dim);font-size:10.5px}
+.hitem .acts{display:flex;gap:4px}
+.hitem .mini{
+  background:var(--card2);border:1px solid var(--line);border-radius:7px;color:var(--dim);
+  font-size:11px;padding:2px 8px;cursor:pointer;
+}
+.hitem .mini:active{color:var(--txt)}
+.hitem .mini.del:active{color:var(--red);border-color:rgba(193,59,78,.5)}
 .pane .clear{
   margin:0 10px 12px;background:none;border:1px dashed var(--line);color:var(--dim);
   border-radius:10px;padding:8px;font-size:12px;cursor:pointer;
 }
+/* sites */
+.sites{display:flex;flex-wrap:wrap;gap:6px;padding:0 10px 4px}
+.site{
+  background:rgba(212,162,78,.08);border:1px solid rgba(212,162,78,.3);color:var(--gold);
+  border-radius:999px;padding:6px 12px;font-size:12.5px;cursor:pointer;
+}
+.site:active{background:rgba(212,162,78,.2)}
 /* projects */
 .proj{
   background:var(--card);border:1px solid var(--line);border-radius:12px;
-  padding:11px 12px;margin-bottom:9px;cursor:pointer;
+  padding:11px 12px;margin-bottom:9px;
 }
-.proj:active{background:var(--card2)}
 .proj .name{font-weight:600;font-size:14px}
 .proj .hint{font-size:11.5px;color:var(--dim);margin-top:3px}
+.proj .pacts{display:flex;gap:6px;margin-top:9px}
+.proj .pacts button{
+  flex:1;background:var(--card2);border:1px solid var(--line);border-radius:9px;
+  color:var(--txt);font-size:12px;padding:6px 4px;cursor:pointer;
+}
+.proj .pacts button:active{border-color:var(--gold);color:var(--gold)}
 /* ---------- center ---------- */
 .center{flex:1;display:flex;flex-direction:column;min-width:0}
 .chips{
@@ -101,12 +119,17 @@ main{flex:1;display:flex;min-height:0}
   padding:12px;font-size:13px;color:var(--dim);margin:8px 0;
 }
 .note b{color:var(--txt)}
-.note a{color:var(--gold);text-decoration:none}
 .empty{color:var(--dim);font-size:12.5px;text-align:center;padding:18px 10px}
+.sent{
+  margin:8px 0 8px auto;max-width:88%;background:rgba(212,162,78,.09);
+  border:1px solid rgba(212,162,78,.28);border-radius:13px 13px 4px 13px;
+  padding:8px 11px;font-size:13.5px;
+}
+.sent .meta{font-size:10px;color:var(--dim);margin-top:4px;text-align:right}
 /* ---------- input bar ---------- */
 .inputbar{
   flex:0 0 auto;display:flex;align-items:flex-end;gap:7px;padding:9px 10px calc(9px + env(safe-area-inset-bottom));
-  background:var(--bg2);border-top:1px solid var(--line);
+  background:var(--bg2);border-top:1px solid var(--line);position:relative;
 }
 .ibtn{
   width:40px;height:40px;flex:0 0 auto;border-radius:12px;border:1px solid var(--line);
@@ -123,6 +146,25 @@ textarea{
 }
 textarea:focus{border-color:rgba(212,162,78,.55)}
 #sendBtn{background:linear-gradient(135deg,#d4a24e,#c13b4e);color:#0b0b10;border:none;font-weight:700}
+#counter{
+  position:absolute;right:64px;top:-16px;font-size:10px;color:var(--dim);display:none;
+}
+#counter.hot{color:var(--red)}
+/* slash autocomplete */
+#ac{
+  position:absolute;left:10px;right:10px;bottom:calc(100% + 4px);z-index:50;
+  background:#16161f;border:1px solid var(--line);border-radius:12px;overflow:hidden;
+  display:none;max-height:260px;overflow-y:auto;
+}
+#ac.show{display:block}
+#ac .acitem{
+  padding:9px 12px;font-size:13.5px;cursor:pointer;display:flex;justify-content:space-between;gap:8px;
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+#ac .acitem:last-child{border-bottom:none}
+#ac .acitem:active,#ac .acitem.sel{background:rgba(212,162,78,.12)}
+#ac .acitem .cmd{color:var(--gold);font-weight:600;white-space:nowrap}
+#ac .acitem .desc{color:var(--dim);font-size:11.5px;text-align:right}
 /* toast */
 #toast{
   position:fixed;left:50%;bottom:78px;transform:translateX(-50%) translateY(16px);
@@ -178,22 +220,21 @@ input[type=file]{display:none}
 
   <div class="center">
     <div class="chips" id="chips"></div>
-    <div class="feed" id="feed">
-      <div class="note">
-        Это <b>пульт</b>: команды уходят агенту, <b>ответы приходят в чат</b> с ботом.
-        Файлы и голосовые можно слать прямо в чат — агент их видит и читает.
-      </div>
-    </div>
+    <div class="feed" id="feed"></div>
     <div class="inputbar">
+      <div id="counter">0/4000</div>
+      <div id="ac"></div>
       <button class="ibtn" id="micBtn" title="Диктовка">🎤</button>
       <button class="ibtn" id="fileBtn" title="Файл">📎</button>
       <input type="file" id="fileInput">
-      <textarea id="input" rows="1" placeholder="Приказ агенту…"></textarea>
+      <textarea id="input" rows="1" placeholder="Приказ агенту…  (/ — команды)"></textarea>
       <button class="ibtn" id="sendBtn">➤</button>
     </div>
   </div>
 
   <nav class="pane right" id="projPane">
+    <h3>Мои сайты</h3>
+    <div class="sites" id="siteList"></div>
     <h3>Проекты</h3>
     <div class="scroll" id="projList"></div>
   </nav>
@@ -204,7 +245,10 @@ input[type=file]{display:none}
 
 <script>
 const tg = window.Telegram?.WebApp;
-try { tg?.ready(); tg?.expand(); tg?.setHeaderColor('#101017'); tg?.setBackgroundColor('#0b0b10'); } catch(e){}
+try {
+  tg?.ready(); tg?.expand(); tg?.setHeaderColor('#101017'); tg?.setBackgroundColor('#0b0b10');
+  tg?.enableClosingConfirmation?.();
+} catch(e){}
 
 /* ---------- helpers ---------- */
 const $ = id => document.getElementById(id);
@@ -212,7 +256,10 @@ let toastTimer;
 function toast(html){ const el=$('toast'); el.innerHTML=html; el.classList.add('show');
   clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),2400); }
 function haptic(s){ try{ tg?.HapticFeedback?.impactOccurred(s||'light'); }catch(e){} }
-
+function openExt(url){
+  try{ if(tg?.openLink){ tg.openLink(url); return; } }catch(e){}
+  window.open(url, '_blank');
+}
 const store = {
   get(k,d){ try{ return JSON.parse(localStorage.getItem(k)) ?? d }catch(e){ return d } },
   set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)) }catch(e){} }
@@ -226,6 +273,7 @@ function send(text, silent){
   if(tg && tg.sendData){
     tg.sendData(text);
     pushHistory(text);
+    pushFeed(text);
     if(!silent) toast('✈️ Улетело агенту — ответ в чате');
     haptic('medium');
   } else {
@@ -233,7 +281,7 @@ function send(text, silent){
   }
 }
 
-/* ---------- history ---------- */
+/* ---------- history (left pane) ---------- */
 function pushHistory(t){
   const h = store.get('hm_history', []);
   h.unshift({t, ts: Date.now()});
@@ -250,20 +298,44 @@ function renderHistory(){
     const dt = new Date(it.ts);
     const when = dt.toLocaleDateString('ru-RU',{day:'numeric',month:'short'}) + ' ' +
                  dt.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
-    d.innerHTML = '<div class="txt"></div><div class="meta"><span>'+when+'</span><span class="del">✕</span></div>';
+    d.innerHTML = '<div class="txt"></div>' +
+      '<div class="meta"><span class="when">'+when+'</span>' +
+      '<span class="acts"><button class="mini resend">⟲</button><button class="mini del">✕</button></span></div>';
     d.querySelector('.txt').textContent = it.t;
     d.addEventListener('click', e => {
       if(e.target.classList.contains('del')){
         const hh = store.get('hm_history', []); hh.splice(i,1); store.set('hm_history', hh);
         renderHistory(); return;
       }
-      $('input').value = it.t; autosize(); $('input').focus();
-      closePanes();
+      if(e.target.classList.contains('resend')){ send(it.t, true); toast('⟲ Повторено'); return; }
+      $('input').value = it.t; autosize(); $('input').focus(); closePanes();
     });
     box.appendChild(d);
   });
 }
 $('histClear').addEventListener('click', () => { store.set('hm_history', []); renderHistory(); });
+
+/* ---------- feed (center): что ушло агенту в этой консоли ---------- */
+function pushFeed(t){
+  const f = store.get('hm_feed', []);
+  f.push({t, ts: Date.now()});
+  store.set('hm_feed', f.slice(-30));
+  renderFeed();
+}
+function renderFeed(){
+  const f = store.get('hm_feed', []);
+  const box = $('feed');
+  box.innerHTML = '<div class="note">Это <b>пульт</b>: команды уходят агенту, <b>ответы приходят в чат</b> с ботом. Файлы и голосовые можно слать прямо в чат — агент их видит.</div>';
+  f.slice(-12).forEach(it => {
+    const d = document.createElement('div'); d.className='sent';
+    const dt = new Date(it.ts);
+    d.innerHTML = '<div class="txt"></div><div class="meta">→ агенту · ' +
+      dt.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}) + '</div>';
+    d.querySelector('.txt').textContent = it.t;
+    box.appendChild(d);
+  });
+  box.scrollTop = box.scrollHeight;
+}
 
 /* ---------- pickers ---------- */
 function bindPicker(id, key, labelId, cmd){
@@ -295,29 +367,61 @@ const CHIPS = [
   ['🔄 Новая сессия', '/new'],
   ['🛑 Стоп', '/stop'],
   ['🧠 Память', 'Что ты помнишь обо мне и моих проектах? Кратко, списком.'],
-  ['⚡ /fast', '/fast'],
 ];
 CHIPS.forEach(([label, cmd]) => {
   const c = document.createElement('button'); c.className='chip'; c.textContent=label;
   c.addEventListener('click', () => send(cmd));
   $('chips').appendChild(c);
 });
+/* prefix chips: вставляют команду в поле, не отправляют */
+const PREFIX_CHIPS = [['↪ btw','/btw '], ['⤵ steer','/steer '], ['⧉ queue','/queue ']];
+PREFIX_CHIPS.forEach(([label, prefix]) => {
+  const c = document.createElement('button'); c.className='chip'; c.textContent=label;
+  c.addEventListener('click', () => {
+    const inp = $('input');
+    if(!inp.value.startsWith(prefix)) inp.value = prefix + inp.value;
+    autosize(); inp.focus(); haptic();
+  });
+  $('chips').appendChild(c);
+});
+
+/* ---------- sites (open in external browser / Safari) ---------- */
+const SITES = [
+  ['стрИИж.рф', 'https://стрииж.рф'],
+  ['продажадронов.рф', 'https://продажадронов.рф'],
+  ['ПВО.МОСКВА', 'https://пво.москва'],
+  ['rfset.shop', 'https://rfset.shop'],
+  ['profpv.ru', 'https://profpv.ru'],
+];
+SITES.forEach(([name, url]) => {
+  const s = document.createElement('button'); s.className='site'; s.textContent=name;
+  s.addEventListener('click', () => { openExt(url); haptic(); });
+  $('siteList').appendChild(s);
+});
 
 /* ---------- projects ---------- */
 const PROJECTS = [
-  {name:'стрИИж.рф', hint:'Сайт БПЛА/сетки · React+Vite · :7100', cmd:'Проект «стрИИж.рф»: найди репозиторий (Documents\\ChatGPT\\стрИИж.рф или Documents\\kimi\\Workspaces\\беспилотие), покажи git status и кратко: что в работе, что дальше.'},
-  {name:'МАКОШЬ', hint:'Магазин метизов :7200 + CRM :7300', cmd:'Проект МАКОШЬ (makosh-site + makosh-crm): git status обоих, что в работе, что дальше. Кратко.'},
-  {name:'ПЕРВАЯ ЗВЕЗДА', hint:'Защитные сетки от БПЛА', cmd:'Проект «Первая Звезда» (сетки от БПЛА): найди репозиторий, git status, статус контента и задач. Кратко.'},
-  {name:'ПЕРУН CRM', hint:'CRM Первая Звезда', cmd:'Проект ПЕРУН CRM: git status, что в работе, открытые вопросы. Кратко.'},
-  {name:'продажадронов.рф', hint:'Магазин дронов · server223', cmd:'Проект продажадронов.рф: git status репозитория и статус сайта. Кратко.'},
-  {name:'ПВО.МОСКВА', hint:'Сайт ПВО', cmd:'Проект ПВО.МОСКВА: git status и текущий статус. Кратко.'},
+  {name:'стрИИж.рф', hint:'Сайт БПЛА/сетки · React+Vite · :7100', path:'Documents\\ChatGPT\\стрИИж.рф или Documents\\kimi\\Workspaces\\беспилотие'},
+  {name:'МАКОШЬ', hint:'Магазин метизов :7200 + CRM :7300', path:'makosh-site + makosh-crm'},
+  {name:'ПЕРВАЯ ЗВЕЗДА', hint:'Защитные сетки от БПЛА', path:'найди репозиторий'},
+  {name:'ПЕРУН CRM', hint:'CRM Первая Звезда', path:'найди репозиторий'},
+  {name:'продажадронов.рф', hint:'Магазин дронов · server223', path:'найди репозиторий'},
+  {name:'ПВО.МОСКВА', hint:'Сайт ПВО', path:'найди репозиторий'},
 ];
 PROJECTS.forEach(p => {
   const d = document.createElement('div'); d.className='proj';
-  d.innerHTML = '<div class="name"></div><div class="hint"></div>';
+  d.innerHTML = '<div class="name"></div><div class="hint"></div>' +
+    '<div class="pacts"><button data-a="status">📊 Статус</button><button data-a="go">▶ Продолжи</button></div>';
   d.querySelector('.name').textContent = p.name;
   d.querySelector('.hint').textContent = p.hint;
-  d.addEventListener('click', () => { send(p.cmd); closePanes(); });
+  d.querySelector('[data-a="status"]').addEventListener('click', () => {
+    send('Проект «' + p.name + '» (' + p.path + '): git status и кратко — что в работе, что дальше.');
+    closePanes();
+  });
+  d.querySelector('[data-a="go"]').addEventListener('click', () => {
+    send('Продолжи работу над проектом «' + p.name + '» (' + p.path + ') по последнему контексту. Сначала скажи, что будешь делать.');
+    closePanes();
+  });
   $('projList').appendChild(d);
 });
 
@@ -327,13 +431,61 @@ $('btnHist').addEventListener('click', () => { $('histPane').classList.add('open
 $('btnProj').addEventListener('click', () => { $('projPane').classList.add('open'); $('overlay').classList.add('show'); });
 $('overlay').addEventListener('click', closePanes);
 
+/* ---------- slash autocomplete ---------- */
+const COMMANDS = [
+  ['/status','состояние сессии'], ['/new','новая сессия'], ['/stop','остановить'],
+  ['/btw ','вопрос на стороне'], ['/steer ','вклиниться в ход'], ['/queue ','в очередь'],
+  ['/model ','сменить модель'], ['/reasoning ','усилие рассуждений'], ['/fast','быстрый режим'],
+  ['/usage','расход токенов'], ['/sessions','все сессии'], ['/agents','активные агенты'],
+  ['/compress','сжать контекст'], ['/undo','откатить ход'], ['/retry','повторить ответ'],
+  ['/memory','память'], ['/goal ','стоящая цель'], ['/diff','git-изменения'],
+  ['/commands','все команды'], ['/help','справка'],
+];
+function renderAC(){
+  const v = $('input').value;
+  const ac = $('ac');
+  if(!v.startsWith('/') || v.includes('\n')){ ac.classList.remove('show'); return; }
+  const q = v.toLowerCase();
+  const hits = COMMANDS.filter(([c]) => c.trim().startsWith(q) && c.trim() !== q).slice(0, 8);
+  if(!hits.length){ ac.classList.remove('show'); return; }
+  ac.innerHTML = '';
+  hits.forEach(([c, desc]) => {
+    const it = document.createElement('div'); it.className='acitem';
+    it.innerHTML = '<span class="cmd">'+c.trim()+'</span><span class="desc">'+desc+'</span>';
+    it.addEventListener('click', () => {
+      $('input').value = c.endsWith(' ') ? c : c.trim() + ' ';
+      ac.classList.remove('show'); autosize(); $('input').focus();
+    });
+    ac.appendChild(it);
+  });
+  ac.classList.add('show');
+}
+
 /* ---------- input ---------- */
 const input = $('input');
-function autosize(){ input.style.height='auto'; input.style.height=Math.min(input.scrollHeight,120)+'px'; }
-input.addEventListener('input', autosize);
-input.addEventListener('keydown', e => { if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); doSend(); } });
-function doSend(){ const v=input.value; if(!v.trim()){ haptic(); return; } input.value=''; autosize(); send(v); }
+function autosize(){ input.style.height='auto'; input.style.height=Math.min(input.scrollHeight,120)+'px'; updateCounter(); }
+function updateCounter(){
+  const n = input.value.length, c = $('counter');
+  c.style.display = n > 3200 ? 'block' : 'none';
+  c.textContent = n + '/4000';
+  c.classList.toggle('hot', n > 3900);
+}
+input.addEventListener('input', () => { autosize(); renderAC(); store.set('hm_draft', input.value); });
+input.addEventListener('keydown', e => {
+  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); doSend(); }
+  if(e.key==='Escape'){ $('ac').classList.remove('show'); }
+});
+function doSend(){
+  const v = input.value;
+  if(!v.trim()){ haptic(); return; }
+  input.value=''; store.set('hm_draft',''); autosize(); renderAC();
+  send(v);
+}
 $('sendBtn').addEventListener('click', doSend);
+
+/* draft restore */
+const draft = store.get('hm_draft', '');
+if(draft){ input.value = draft; autosize(); }
 
 /* ---------- voice: speech-to-text where supported ---------- */
 let recog = null, recActive = false;
@@ -349,7 +501,7 @@ $('micBtn').addEventListener('click', () => {
     for(const r of e.results){ (r.isFinal ? fin += r[0].transcript : inter += r[0].transcript); }
     input.value = base + fin + inter; autosize();
   };
-  recog.onend = () => { recActive=false; $('micBtn').classList.remove('rec'); };
+  recog.onend = () => { recActive=false; $('micBtn').classList.remove('rec'); store.set('hm_draft', input.value); };
   recog.onerror = () => { recActive=false; $('micBtn').classList.remove('rec'); toast('Микрофон недоступен — голосовое в чат сработает'); };
   try{ recog.start(); recActive=true; $('micBtn').classList.add('rec'); toast('🎤 Говорю — текст пишется в поле'); }
   catch(e){ toast('Не удалось запустить диктовку'); }
@@ -375,6 +527,7 @@ $('fileInput').addEventListener('change', e => {
 });
 
 renderHistory();
+renderFeed();
 </script>
 </body>
 </html>
