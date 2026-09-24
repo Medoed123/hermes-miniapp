@@ -317,7 +317,7 @@
   function sendCmd(text, note) {
     haptic('medium');
     if (tg && tg.sendData) {
-      tg.sendData(JSON.stringify({ type: 'command', text }));
+      tg.sendData(text);
       toast('✨ <b>' + (note || 'Отправлено') + '</b> — ответ в чате');
     } else {
       toast('Откройте через кнопку в боте');
