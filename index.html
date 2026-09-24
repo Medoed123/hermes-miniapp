@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Hermes — твой агент</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root {
+    --bg: #0a0708;
+    --bg2: #140d10;
+    --card: rgba(255,255,255,.045);
+    --card-brd: rgba(255,255,255,.09);
+    --gold: #e8b45a;
+    --gold-soft: rgba(232,180,90,.16);
+    --crimson: #c03a4e;
+    --crimson-soft: rgba(192,58,78,.18);
+    --txt: #f3ece4;
+    --txt-dim: rgba(243,236,228,.55);
+    --serif: "Georgia", "Times New Roman", serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html { scroll-behavior:smooth; }
+  body {
+    background: var(--bg);
+    color: var(--txt);
+    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 480px; margin: 0 auto; padding-bottom: 40px; }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    height: 78vh;
+    min-height: 520px;
+    overflow: hidden;
+    border-radius: 0 0 28px 28px;
+  }
+  .hero img {
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: center 18%;
+    transform: scale(1.02);
+    animation: heroIn 1.6s cubic-bezier(.2,.7,.2,1) both;
+  }
+  @keyframes heroIn { from { transform: scale(1.12); opacity:.4; } to { transform: scale(1.02); opacity:1; } }
+  .hero::after {
+    content:""; position:absolute; inset:0;
+    background: linear-gradient(180deg,
+      rgba(10,7,8,.28) 0%,
+      rgba(10,7,8,0) 28%,
+      rgba(10,7,8,.06) 55%,
+      rgba(10,7,8,.88) 88%,
+      var(--bg) 100%);
+  }
+  .hero-top {
+    position:absolute; top:0; left:0; right:0; z-index:3;
+    display:flex; justify-content:space-between; align-items:center;
+    padding: calc(env(safe-area-inset-top, 0px) + 16px) 20px 0;
+  }
+  .brand {
+    font-family: var(--serif);
+    letter-spacing:.42em; font-size:15px; font-weight:700;
+    color: var(--gold);
+    text-shadow: 0 0 18px rgba(232,180,90,.45);
+  }
+  .status-chip {
+    display:flex; align-items:center; gap:7px;
+    background: rgba(10,7,8,.55);
+    border: 1px solid var(--card-brd);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-radius: 999px; padding: 7px 13px;
+    font-size: 11.5px; color: var(--txt-dim);
+  }
+  .dot { width:7px; height:7px; border-radius:50%; background:#5ad58a; box-shadow:0 0 10px #5ad58a; animation: pulse 2.2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+  .hero-bottom { position:absolute; bottom:0; left:0; right:0; z-index:3; padding: 0 22px 26px; }
+  .hero-eyebrow {
+    font-size: 11px; letter-spacing:.34em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 10px;
+  }
+  .hero-name {
+    font-family: var(--serif);
+    font-size: 46px; line-height: 1.02; font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .hero-name em { font-style: italic; color: var(--gold); }
+  .hero-sub { font-size: 14px; line-height: 1.55; color: var(--txt-dim); max-width: 300px; }
+
+  /* ── SECTIONS ── */
+  section { padding: 30px 20px 0; }
+  .sec-title {
+    font-family: var(--serif);
+    font-size: 12px; letter-spacing:.32em; text-transform: uppercase;
+    color: var(--txt-dim); margin-bottom: 16px;
+    display:flex; align-items:center; gap:12px;
+  }
+  .sec-title::after { content:""; flex:1; height:1px; background: linear-gradient(90deg, var(--card-brd), transparent); }
+
+  /* quick actions */
+  .grid { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .card {
+    position:relative;
+    background: var(--card);
+    border: 1px solid var(--card-brd);
+    border-radius: 20px;
+    padding: 18px 16px 16px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform .18s ease, border-color .18s ease, background .18s ease;
+  }
+  .card:active { transform: scale(.965); }
+  .card::before {
+    content:""; position:absolute; inset:0;
+    background: radial-gradient(120% 90% at 20% 0%, var(--gold-soft), transparent 60%);
+    opacity:0; transition: opacity .2s;
+  }
+  .card:hover::before { opacity:1; }
+  .card:hover { border-color: rgba(232,180,90,.35); }
+  .card .ico { font-size: 24px; display:block; margin-bottom: 10px; filter: drop-shadow(0 2px 8px rgba(0,0,0,.5)); }
+  .card .t { font-size: 14.5px; font-weight: 600; margin-bottom: 4px; position:relative; }
+  .card .d { font-size: 11.5px; color: var(--txt-dim); line-height:1.45; position:relative; }
+  .card.red::before { background: radial-gradient(120% 90% at 20% 0%, var(--crimson-soft), transparent 60%); }
+  .card.red:hover { border-color: rgba(192,58,78,.45); }
+
+  /* custom ask */
+  .ask {
+    margin-top: 12px;
+    background: var(--card);
+    border: 1px solid var(--card-brd);
+    border-radius: 20px;
+    padding: 8px 8px 8px 18px;
+    display:flex; gap:10px; align-items:center;
+  }
+  .ask input {
+    flex:1; background:none; border:none; outline:none;
+    color: var(--txt); font-size: 15px; padding: 12px 0;
+  }
+  .ask input::placeholder { color: var(--txt-dim); }
+  .ask button {
+    border:none; cursor:pointer;
+    background: linear-gradient(135deg, var(--gold), #c98f36);
+    color:#1a1206; font-weight:700; font-size:14px;
+    border-radius: 14px; padding: 12px 20px;
+    transition: transform .15s ease, filter .15s ease;
+  }
+  .ask button:active { transform: scale(.94); filter: brightness(1.15); }
+
+  /* personas carousel */
+  .carousel {
+    display:flex; gap:14px; overflow-x:auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 8px;
+    margin: 0 -20px; padding-left:20px; padding-right:20px;
+    scrollbar-width: none;
+  }
+  .carousel::-webkit-scrollbar { display:none; }
+  .persona {
+    scroll-snap-align: start;
+    flex: 0 0 78%;
+    position:relative;
+    border-radius: 24px; overflow:hidden;
+    border: 1px solid var(--card-brd);
+    height: 380px;
+    cursor: pointer;
+  }
+  .persona img { width:100%; height:100%; object-fit:cover; object-position:center 15%; transition: transform .5s ease; }
+  .persona:active img { transform: scale(1.05); }
+  .persona::after {
+    content:""; position:absolute; inset:0;
+    background: linear-gradient(180deg, transparent 45%, rgba(10,7,8,.92) 96%);
+  }
+  .persona .info { position:absolute; bottom:0; left:0; right:0; z-index:2; padding: 18px; }
+  .persona .pname { font-family: var(--serif); font-size: 24px; margin-bottom:4px; }
+  .persona .prole { font-size: 12px; color: var(--gold); letter-spacing:.18em; text-transform:uppercase; margin-bottom:8px; }
+  .persona .pdesc { font-size: 12.5px; color: var(--txt-dim); line-height:1.5; margin-bottom: 12px; }
+  .persona .pbtn {
+    display:inline-block;
+    background: rgba(232,180,90,.14);
+    border: 1px solid rgba(232,180,90,.4);
+    color: var(--gold);
+    font-size: 12.5px; font-weight:600;
+    border-radius: 999px; padding: 8px 16px;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  }
+
+  /* footer */
+  footer {
+    margin-top: 36px; text-align:center;
+    font-size: 11px; color: rgba(243,236,228,.32);
+    letter-spacing:.22em; text-transform: uppercase;
+  }
+  footer .rule { width: 52px; height:1px; background: rgba(232,180,90,.35); margin: 0 auto 12px; }
+
+  /* toast */
+  #toast {
+    position: fixed; left:50%; bottom: 34px; transform: translateX(-50%) translateY(90px);
+    background: rgba(20,13,16,.92);
+    border: 1px solid rgba(232,180,90,.4);
+    color: var(--txt);
+    padding: 12px 22px; border-radius: 999px;
+    font-size: 13.5px; z-index: 50;
+    transition: transform .35s cubic-bezier(.2,.9,.3,1.2), opacity .3s;
+    opacity: 0; pointer-events:none;
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    white-space: nowrap;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); opacity:1; }
+  #toast b { color: var(--gold); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <div class="hero-top">
+      <div class="brand">HERMES</div>
+      <div class="status-chip"><span class="dot"></span><span id="statusText">online · Kimi K3</span></div>
+    </div>
+    <img src="assets/hero.jpg" alt="Лю">
+    <div class="hero-bottom">
+      <div class="hero-eyebrow">личный агент · v1</div>
+      <div class="hero-name">Мадам <em>Лю</em><br>к вашим услугам</div>
+      <div class="hero-sub">Она уже слушает. Приказ — и Hermes исполнит: код, сайты, исследования, рассылки.</div>
+    </div>
+  </div>
+
+  <section>
+    <div class="sec-title">Быстрые приказы</div>
+    <div class="grid">
+      <div class="card" onclick="sendCmd('/status', 'Запрошен статус')">
+        <span class="ico">📊</span>
+        <div class="t">Статус</div>
+        <div class="d">Состояние агента и сессии</div>
+      </div>
+      <div class="card red" onclick="sendCmd('/new', 'Начата новая сессия')">
+        <span class="ico">✨</span>
+        <div class="t">Новая сессия</div>
+        <div class="d">Чистый контекст, с нуля</div>
+      </div>
+      <div class="card red" onclick="sendCmd('Проверь все мои сайты: открываются ли, отвечают ли 200. Краткий отчёт.', 'Проверка сайтов запущена')">
+        <span class="ico">🌐</span>
+        <div class="t">Пульс сайтов</div>
+        <div class="d">Все домены — живы ли</div>
+      </div>
+      <div class="card" onclick="sendCmd('Сделай краткую сводку: что сегодня сделано по проектам и что в работе.', 'Сводка готовится')">
+        <span class="ico">📋</span>
+        <div class="t">Сводка дня</div>
+        <div class="d">Что сделано и что в работе</div>
+      </div>
+    </div>
+    <div class="ask">
+      <input id="askInput" type="text" placeholder="Свой приказ, господин…" enterkeyhint="send" onkeydown="if(event.key==='Enter')sendAsk()">
+      <button onclick="sendAsk()">Отправить</button>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-title">Советницы</div>
+    <div class="carousel">
+      <div class="persona" onclick="sendCmd('Расскажи коротко, что ты умеешь, — как мой личный агент Hermes. Стиль: уверенно и с лёгкой иронией.', 'Лю передаёт слово Hermes…')">
+        <img src="assets/hero.jpg" alt="Лю">
+        <div class="info">
+          <div class="pname">Мадам Лю</div>
+          <div class="prole">Хозяйка вечера</div>
+          <div class="pdesc">Знает все ваши проекты. Спросите её — что Hermes умеет на самом деле.</div>
+          <span class="pbtn">Спросить о возможностях</span>
+        </div>
+      </div>
+      <div class="persona" onclick="sendCmd('Составь вдохновляющий план на завтра по моим проектам: 3 главных шага, коротко и по делу.', 'Виолетта шепнёт план…')">
+        <img src="assets/violet.jpg" alt="Виолетта">
+        <div class="info">
+          <div class="pname">Виолетта</div>
+          <div class="prole">Стратег ночи</div>
+          <div class="pdesc">Пока город спит, она раскладывает ваше завтра по полочкам.</div>
+          <span class="pbtn">План на завтра</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="rule"></div>
+    hermes · edian1_hermes_bot
+  </footer>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  const tg = window.Telegram?.WebApp;
+  if (tg) {
+    tg.expand();
+    try {
+      tg.setHeaderColor('#0a0708');
+      tg.setBackgroundColor('#0a0708');
+    } catch(e) {}
+    if (tg.themeParams?.bg_color) {
+      // stay on brand regardless of theme, but honor dark/light text minimally
+    }
+  }
+
+  let toastTimer = null;
+  function toast(html) {
+    const el = document.getElementById('toast');
+    el.innerHTML = html;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+  }
+
+  function haptic(style) {
+    try { tg?.HapticFeedback?.impactOccurred(style || 'medium'); } catch(e) {}
+  }
+
+  function sendCmd(text, note) {
+    haptic('medium');
+    if (tg && tg.sendData) {
+      tg.sendData(JSON.stringify({ type: 'command', text }));
+      toast('✨ <b>' + (note || 'Отправлено') + '</b> — ответ в чате');
+    } else {
+      toast('Откройте через кнопку в боте');
+    }
+  }
+
+  function sendAsk() {
+    const inp = document.getElementById('askInput');
+    const v = inp.value.trim();
+    if (!v) { haptic('light'); toast('Пустой приказ не исполняют 😌'); return; }
+    sendCmd(v, 'Приказ принят');
+    inp.value = '';
+  }
+</script>
+</body>
+</html>
