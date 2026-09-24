@@ -193,6 +193,7 @@ input[type=file]{display:none}
     <div class="sub"><i></i>online · <span id="modelLabel">k3</span> · <span id="effortLabel">high</span></div>
   </div>
   <div class="spacer"></div>
+  <button class="hbtn" id="btnNew" title="Новая сессия">＋</button>
   <button class="hbtn only-mobile" id="btnProj">Проекты</button>
 </header>
 
@@ -426,6 +427,9 @@ PROJECTS.forEach(p => {
 });
 
 /* ---------- drawers ---------- */
+$('btnNew').addEventListener('click', () => {
+  if(confirm('Начать новую сессию? Текущий контекст чата сбросится.')) send('/new');
+});
 function closePanes(){ $('histPane').classList.remove('open'); $('projPane').classList.remove('open'); $('overlay').classList.remove('show'); }
 $('btnHist').addEventListener('click', () => { $('histPane').classList.add('open'); $('overlay').classList.add('show'); });
 $('btnProj').addEventListener('click', () => { $('projPane').classList.add('open'); $('overlay').classList.add('show'); });
