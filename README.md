@@ -1,4 +1,4 @@
-# Hermes Mini App — «Мадам Лю» ✨
+# Hermes Mini App — «Лю и Алексей» ✨
 
 Telegram Mini App для бота [@edian1_hermes_bot](https://t.me/edian1_hermes_bot) — пульт управления личным Hermes-агентом (модель Kimi K3).
 
